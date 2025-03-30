@@ -1,20 +1,24 @@
 #include <iostream>
 #include <conio.h>
+#include <cstdlib>
+#include <windows.h>
 using namespace std;
 const int rows=50, cols=200;
 const int xborder1=30, xborder2=160; //marginilie tablei pe axa Ox
 const int yborder1=10, yborder2=49;  //mariginile tablei pe axa Oy
 void draw_table(char tabla[rows][cols]);
 void draw_palet(char paleta[rows][cols]);
-void move_palet(char paleta[rows][cols], int posY);
+void move_palet(char paleta[rows][cols], int &posy);
 int main()
 {
     int posy = (yborder1 + yborder2) / 2;
     char tabla[rows][cols];  
     char paleta[rows][cols];   
-    draw_table(tabla);
-    draw_palet(tabla);
-    move_palet(tabla, posy);
+    cout<<"Press any key to start the game.\n Press 1 to quit.";
+    
+    draw_table(tabla);  // Desenează tabla
+    draw_palet(paleta);  // Desenează paleta
+    move_palet(paleta, posy);  // Mișcă paleta
     return 0;
 }
 void draw_table(char tabla[rows][cols])
@@ -50,12 +54,44 @@ void draw_palet(char paleta[rows][cols])
         cout << '\r' << flush;  // afisez tabla
     }
 }
-void move_palet(char paleta[rows][cols], int posY) {
-    if (_kbhit()) {  // Verifică dacă o tastă a fost apăsată
-        char n = _getch();  // Obține tasta apăsată
-        if (n == 'w' && posY > 10)
-            posY--;
-        else if (n == 's' && posY < 40 - 5)  // rows este înălțimea paletei
-            posY++;
+void delete_palet(char paleta[rows][cols], int posy){
+    for (int i = posy; i < posy + 5; i++) { 
+        paleta[i][xborder1+3] = ' ';
+        paleta[i][xborder1+5] = ' ';
+    }
+    for (int j = xborder1+3; j < xborder1+6; j++) { 
+        paleta[(yborder1+yborder2)/2-1][j] = ' ';
+        paleta[(yborder1+yborder2)/2 + 4][j] = ' ';
+    }
+}
+void update_palet(char paleta[rows][cols], int posy){
+    for (int i = posy; i < posy + 5; i++) { 
+        paleta[i][xborder1+3] = '#';
+        paleta[i][xborder1+5] = '#';
+    }
+    for (int j = xborder1+3; j < xborder1+6; j++) { 
+        paleta[(yborder1+yborder2)/2-1][j] = '#';
+        paleta[(yborder1+yborder2)/2 + 4][j] = '#';
+    }
+    for (int i = 0; i < rows; i++){
+        for (int j = 0; j < cols; j++)
+            cout << paleta[i][j];
+        cout << '\r' << flush;  // afisez tabla
+    }
+}
+
+void move_palet(char paleta[rows][cols], int &posy) {
+    while(true){
+        if (_kbhit()){
+            system("CLS");  // Curăță ecranul la începutul fiecărei actualizări
+            char n=_getch();
+            if(n=='w' && posy >= yborder1){ //sa nu iasa din masa
+                delete_palet(paleta,posy);
+                posy--;
+                update_palet(paleta,posy);
+           }
+            Sleep(100);  // Adaugă o mică întârziere pentru a face jocul mai fluid
+            if(n=='1') break;  
         }
+    }
 }
