@@ -7,17 +7,17 @@ const int rows=50, cols=200;
 const int xborder1=30, xborder2=160; //marginilie tablei pe axa Ox
 const int yborder1=10, yborder2=49;  //mariginile tablei pe axa Oy
 void draw_table(char tabla[rows][cols]);
-void draw_palet(char paleta[rows][cols]);
+void draw_palet(char paleta[rows][cols], int posy);
 void move_palet(char paleta[rows][cols], int &posy);
 int main()
 {
-    int posy = (yborder1 + yborder2) / 2;
+    system("CLS");
+    int posy = ((yborder1 + yborder2) / 2) - 1;
     char tabla[rows][cols];  
     char paleta[rows][cols];   
-    cout<<"Press any key to start the game.\n Press 1 to quit.";
-    
     draw_table(tabla);  // Desenează tabla
-    draw_palet(paleta);  // Desenează paleta
+    draw_palet(paleta, posy);  // Desenează paleta
+    cout<<"Press any key to start the game.\n Press 1 to quit.";
     move_palet(paleta, posy);  // Mișcă paleta
     return 0;
 }
@@ -37,17 +37,25 @@ void draw_table(char tabla[rows][cols])
         tabla[i][xborder2] = '|';
         tabla[i][(xborder1+xborder2)/2] = '|'; // mijlocul tablei
     }
+    
 }
-void draw_palet(char paleta[rows][cols])
+void draw_palet(char paleta[rows][cols], int posy)
 {
-    for (int i = (yborder1+yborder2)/2; i < (yborder1+yborder2)/2 + 5; i++) { //lungimea paletei este de 5
-        paleta[i][xborder1+3] = '#';
-        paleta[i][xborder1+5] = '#';
+    // Curăță paleta veche
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            if (paleta[i][j] == '#') 
+                paleta[i][j] = ' ';
+    // Desenează paleta în poziția corectă
+    for (int i = posy; i < posy + 5; i++) { // lungimea paletei este de 5
+        paleta[i][xborder1 + 3] = '#';
+        paleta[i][xborder1 + 5] = '#';
     }
-    for (int j = xborder1+3; j < xborder1+6; j++) { //latimea paletei de 3
-        paleta[(yborder1+yborder2)/2-1][j] = '#';
-        paleta[(yborder1+yborder2)/2 + 4][j] = '#';
+    for (int j = xborder1 + 3; j < xborder1 + 6; j++) { // lățimea paletei de 3
+        paleta[(yborder1 + yborder2) / 2 - 1][j] = '#';
+        paleta[(yborder1 + yborder2) / 2 + 4][j] = '#';
     }
+
     for (int i = 0; i < rows; i++){
         for (int j = 0; j < cols; j++)
             cout << paleta[i][j];
@@ -65,19 +73,9 @@ void delete_palet(char paleta[rows][cols], int posy){
     }
 }
 void update_palet(char paleta[rows][cols], int posy){
-    for (int i = posy; i < posy + 5; i++) { 
-        paleta[i][xborder1+3] = '#';
-        paleta[i][xborder1+5] = '#';
-    }
-    for (int j = xborder1+3; j < xborder1+6; j++) { 
-        paleta[(yborder1+yborder2)/2-1][j] = '#';
-        paleta[(yborder1+yborder2)/2 + 4][j] = '#';
-    }
-    for (int i = 0; i < rows; i++){
-        for (int j = 0; j < cols; j++)
-            cout << paleta[i][j];
-        cout << '\r' << flush;  // afisez tabla
-    }
+    draw_table(paleta); // Desenează tabla
+    draw_palet(paleta, posy); // Desenează paleta
+    
 }
 
 void move_palet(char paleta[rows][cols], int &posy) {
@@ -90,7 +88,6 @@ void move_palet(char paleta[rows][cols], int &posy) {
                 posy--;
                 update_palet(paleta,posy);
            }
-            Sleep(100);  // Adaugă o mică întârziere pentru a face jocul mai fluid
             if(n=='1') break;  
         }
     }
