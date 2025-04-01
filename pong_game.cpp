@@ -6,7 +6,10 @@ using namespace std;
 const int ROWS=30, COLS=70;
 const int XBORDER1=10, XBORDER2=60;
 const int YBORDER1=5, YBORDER2=29;
-
+int ballx= (XBORDER1 + XBORDER2) / 2;
+int bally= (YBORDER1 + YBORDER2) / 2;
+int balldirx = 1; //+1 in dreapta -1 in stanga
+int balldiry = 1; //+1 in sus -1 in jos
 void draw_table(char board[][COLS], int posy, int ypos);
 void print_board(char board[][COLS]);
 void move_palet(char board[][COLS], int &posy, int &ypos);
@@ -114,6 +117,6 @@ void draw_ball(char board[ROWS][COLS], int &bposx, int &bposy){
     int i=bposx;
     int j=bposy;
     while((i>XBORDER1 && i<XBORDER2) && (j>YBORDER1 && j<YBORDER2)){
-        
+
     }
 }
