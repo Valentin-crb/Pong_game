@@ -1,94 +1,119 @@
 #include <iostream>
 #include <conio.h>
-#include <cstdlib>
 #include <windows.h>
 using namespace std;
-const int rows=50, cols=200;
-const int xborder1=30, xborder2=160; //marginilie tablei pe axa Ox
-const int yborder1=10, yborder2=49;  //mariginile tablei pe axa Oy
-void draw_table(char tabla[rows][cols]);
-void draw_palet(char paleta[rows][cols], int posy);
-void move_palet(char paleta[rows][cols], int &posy);
-int main()
-{
-    system("CLS");
-    int posy = ((yborder1 + yborder2) / 2) - 1;
-    char tabla[rows][cols];  
-    char paleta[rows][cols];   
-    draw_table(tabla);  // Desenează tabla
-    draw_palet(paleta, posy);  // Desenează paleta
-    cout<<"Press any key to start the game.\n Press 1 to quit.";
-    move_palet(paleta, posy);  // Mișcă paleta
+
+const int ROWS=30, COLS=70;
+const int XBORDER1=10, XBORDER2=60;
+const int YBORDER1=5, YBORDER2=29;
+
+void draw_table(char board[][COLS], int posy, int ypos);
+void print_board(char board[][COLS]);
+void move_palet(char board[][COLS], int &posy, int &ypos);
+void draw_ball(char board[ROWS][COLS], int &bpos);
+void setConsoleSettings();
+void hideCursor();
+
+int main() {
+    setConsoleSettings();
+    
+    int posy = (YBORDER1 + YBORDER2) / 2;
+    int ypos = (YBORDER1 + YBORDER2) / 2;
+    char board[ROWS][COLS];
+
+    draw_table(board, posy, ypos);
+    print_board(board);
+
+    cout << "\nUse W/S or I/K to move, press 1 to quit.";
+    
+    move_palet(board, posy, ypos);
+
     return 0;
 }
-void draw_table(char tabla[rows][cols])
-{
-    for (int i = 0; i < rows; i++)
-        for (int j = 0; j < cols; j++)
-            tabla[i][j] = ' ';
-    for (int j = xborder1; j <= xborder2; j++)
-    {
-        tabla[yborder1][j] = '-';
-        tabla[yborder2][j] = '-';
-    }
-    for (int i = yborder1; i <= yborder2; i++)
-    {
-        tabla[i][xborder1] = '|';
-        tabla[i][xborder2] = '|';
-        tabla[i][(xborder1+xborder2)/2] = '|'; // mijlocul tablei
-    }
-    
-}
-void draw_palet(char paleta[rows][cols], int posy)
-{
-    // Curăță paleta veche
-    for (int i = 0; i < rows; i++)
-        for (int j = 0; j < cols; j++)
-            if (paleta[i][j] == '#') 
-                paleta[i][j] = ' ';
-    // Desenează paleta în poziția corectă
-    for (int i = posy; i < posy + 5; i++) { // lungimea paletei este de 5
-        paleta[i][xborder1 + 3] = '#';
-        paleta[i][xborder1 + 5] = '#';
-    }
-    for (int j = xborder1 + 3; j < xborder1 + 6; j++) { // lățimea paletei de 3
-        paleta[(yborder1 + yborder2) / 2 - 1][j] = '#';
-        paleta[(yborder1 + yborder2) / 2 + 4][j] = '#';
-    }
 
-    for (int i = 0; i < rows; i++){
-        for (int j = 0; j < cols; j++)
-            cout << paleta[i][j];
-        cout << '\r' << flush;  // afisez tabla
-    }
-}
-void delete_palet(char paleta[rows][cols], int posy){
-    for (int i = posy; i < posy + 5; i++) { 
-        paleta[i][xborder1+3] = ' ';
-        paleta[i][xborder1+5] = ' ';
-    }
-    for (int j = xborder1+3; j < xborder1+6; j++) { 
-        paleta[(yborder1+yborder2)/2-1][j] = ' ';
-        paleta[(yborder1+yborder2)/2 + 4][j] = ' ';
-    }
-}
-void update_palet(char paleta[rows][cols], int posy){
-    draw_table(paleta); // Desenează tabla
-    draw_palet(paleta, posy); // Desenează paleta
-    
+void setConsoleSettings() {
+    // Hide cursor for better performance
+    hideCursor();
+
+    // Maximize console window
+    HWND hWnd = GetConsoleWindow();
+    ShowWindow(hWnd, SW_SHOWMAXIMIZED);
 }
 
-void move_palet(char paleta[rows][cols], int &posy) {
-    while(true){
-        if (_kbhit()){
-            system("CLS");  // Curăță ecranul la începutul fiecărei actualizări
-            char n=_getch();
-            if(n=='w' && posy >= yborder1){ //sa nu iasa din masa
-                delete_palet(paleta,posy);
+void hideCursor() {
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO cursorInfo;
+    GetConsoleCursorInfo(console, &cursorInfo);
+    cursorInfo.bVisible = FALSE;  // Hide cursor
+    SetConsoleCursorInfo(console, &cursorInfo);
+}
+
+void draw_table(char board[][COLS], int posy, int ypos) {
+    // Fill board with empty spaces
+    for (int i = 0; i < ROWS; i++)
+        for (int j = 0; j < COLS; j++)
+            board[i][j] = ' ';
+
+    // Draw borders
+    for (int j = XBORDER1; j <= XBORDER2; j++) {
+        board[YBORDER1][j] = '-';
+        board[YBORDER2][j] = '-';
+    }
+    for (int i = YBORDER1; i <= YBORDER2; i++) {
+        board[i][XBORDER1] = '|';
+        board[i][XBORDER2] = '|';
+    }
+
+    // Draw paddle
+    for (int i = posy; i < posy + 5; i++) {
+        board[i][XBORDER1 + 3] = '#';
+    }
+
+    // Draw 2nd paddle
+    for (int i = ypos; i < ypos + 5; i++) {
+        board[i][XBORDER2 - 3] = '#';
+    }
+}
+
+void print_board(char board[][COLS]) {
+    string output;
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++)
+            output += board[i][j];
+        output += "\n";
+    }
+    system("cls"); // Clear screen
+    cout << output; // Print entire frame at once
+}
+
+void move_palet(char board[][COLS], int &posy, int &ypos) {
+    while (true) {
+        if (_kbhit()) {
+            char key = _getch();
+            if ((key == 'w' || key == 'W') && posy > YBORDER1+1) {
                 posy--;
-                update_palet(paleta,posy);
-           }
-            if(n=='1') break;  
+            } 
+            if ((key == 's' || key == 'S') && posy + 5 < YBORDER2) {
+                posy++;
+            }
+            if ((key == 'i' || key == 'I') && ypos > YBORDER1+1) {
+                ypos--;
+            }
+            if ((key == 'k' || key == 'K') && ypos + 5 < YBORDER2) {
+                ypos++;
+            }
+            if (key == '1') break;
+
+            draw_table(board, posy, ypos);
+            print_board(board);
         }
+    }
+}
+void draw_ball(char board[ROWS][COLS], int &bposx, int &bposy){
+    string ball = "@";
+    int i=bposx;
+    int j=bposy;
+    while((i>XBORDER1 && i<XBORDER2) && (j>YBORDER1 && j<YBORDER2)){
+        
     }
 }
