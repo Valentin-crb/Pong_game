@@ -3,37 +3,37 @@
 #include <windows.h>
 using namespace std;
 
-const int ROWS=30, COLS=70;
-const int XBORDER1=10, XBORDER2=60;
-const int YBORDER1=5, YBORDER2=25;
-int ballx= (XBORDER1 + XBORDER2) / 2;
-int bally= (YBORDER1 + YBORDER2) / 2;
+const int ROWS=30;
+const int COLS=70;
+const int XBORDER1=10;
+const int XBORDER2=60;
+const int YBORDER1=5;
+const int YBORDER2=25;
+char board[ROWS][COLS];
 int balldirx = 1; //+1 in dreapta -1 in stanga
 int balldiry = 1; //+1 in sus -1 in jos
-void draw_table(char board[][COLS], int posy, int ypos);
-void print_board(char board[][COLS]);
-void move_palet(char board[][COLS], int &posy, int &ypos);
-void draw_ball(char board[ROWS][COLS], int ballx, int bally);
-void move_ball(char board[][COLS], int &bposx, int &bposy, int &bdirx, int &bdiry, int posy, int ypos);
+int posy = (YBORDER1 + YBORDER2) / 2;
+int ypos = (YBORDER1 + YBORDER2) / 2;
+
+void start();
+void draw_table(int posy, int ypos);
+void print_board();
+void move_palet(int &posy, int &ypos);
+void draw_ball(int ballx, int bally);
+void move_ball(int &bposx, int &bposy, int &bdirx, int &bdiry, int posy, int ypos);
 void setConsoleSettings();
 void hideCursor();
 
 int main() {
-    setConsoleSettings();
-    
-    int posy = (YBORDER1 + YBORDER2) / 2;
-    int ypos = (YBORDER1 + YBORDER2) / 2;
-    char board[ROWS][COLS];
-
-    draw_table(board, posy, ypos);
-    print_board(board);
-
-    cout << "\nUse W/S or I/K to move, press 1 to quit.";
-    
-    move_palet(board, posy, ypos);
-    //move_ball(board, ballx, bally, balldirx, balldiry, posy, ypos);
-
+    cout << "\nPress any key to start.\nUse W/S or I/K to move, press 1 to quit.";
+    start();
     return 0;
+}
+
+void start(){
+    setConsoleSettings();
+    _getch();
+    move_palet(posy, ypos);
 }
 
 void setConsoleSettings() {
@@ -53,7 +53,7 @@ void hideCursor() {
     SetConsoleCursorInfo(console, &cursorInfo);
 }
 
-void draw_table(char board[][COLS], int posy, int ypos) {
+void draw_table(int posy, int ypos) {
     // Fill board with empty spaces
     for (int i = 0; i < ROWS; i++)
         for (int j = 0; j < COLS; j++)
@@ -80,7 +80,7 @@ void draw_table(char board[][COLS], int posy, int ypos) {
     }
 }
 
-void print_board(char board[][COLS]) {
+void print_board() {
     string output;
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++)
@@ -91,11 +91,10 @@ void print_board(char board[][COLS]) {
     cout << output; // Print entire frame at once
 }
 
-void move_palet(char board[][COLS], int &posy, int &ypos) {
+void move_palet(int &posy, int &ypos) {
     int ballX = (XBORDER1 + XBORDER2) / 2;
     int ballY = (YBORDER1 + YBORDER2) / 2;
     int ballDirX = 1, ballDirY = 1;
-
     while (true) {
         if (_kbhit()) {
             char key = _getch();
@@ -105,19 +104,18 @@ void move_palet(char board[][COLS], int &posy, int &ypos) {
             if ((key == 'k' || key == 'K') && ypos + 5 < YBORDER2) ypos++;
             if (key == '1') break;
         }
-        draw_table(board, posy, ypos);
-        move_ball(board, ballX, ballY, ballDirX, ballDirY, posy, ypos);
-        print_board(board);
+        draw_table(posy, ypos);
+        move_ball(ballX, ballY, ballDirX, ballDirY, posy, ypos);
+        print_board();
         Sleep(15);
     }
 }
 
-
-void draw_ball(char board[ROWS][COLS], int ballx, int bally){
+void draw_ball(int ballx, int bally){
     board[bally][ballx]='@';
 }
 
-void move_ball(char board[][COLS], int &bposx, int &bposy, int &bdirx, int &bdiry, int posy, int ypos) {
+void move_ball(int &bposx, int &bposy, int &bdirx, int &bdiry, int posy, int ypos) {
     // Șterge mingea din poziția curentă
     board[bposy][bposx] = ' ';
 
@@ -144,7 +142,7 @@ void move_ball(char board[][COLS], int &bposx, int &bposy, int &bdirx, int &bdir
         bposy = (YBORDER1 + YBORDER2) / 2;
         bdirx = -bdirx; // Schimbă direcția la cineva care a pierdut
     }
-    draw_ball(board, bposx, bposy);
+    draw_ball(bposx, bposy);
 }
 
 
